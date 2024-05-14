@@ -26,7 +26,7 @@ export class UsersService {
   async createUser(
     createUserDto: CreateUserDto,
   ): Promise<AuthUserResponseType> {
-    if (createUserDto.password !== createUserDto.confirmpassword) {
+    if (createUserDto.password !== createUserDto.confirmPassword) {
       throw new HttpException('passswords must match', HttpStatus.BAD_REQUEST);
     }
     const findUser = await this.userRepository.findOne({

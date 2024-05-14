@@ -27,7 +27,6 @@ export class CreateUserDto {
   @Length(0, 150)
   email: string;
 
-
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
@@ -41,20 +40,11 @@ export class CreateUserDto {
   @Length(0, 150)
   password: string;
 
-  @ApiProperty({
-    type: String,
-    description: 'user date of birth,FORMAT : YYYY-MM-DD',
-  })
-  @IsNotEmpty()
-  @IsOptional()
-  @IsDateString()
-  dob: Date;
-
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
   @Length(0, 150)
-  confirmpassword: string;
+  confirmPassword: string;
 }
 
 export class AuthUserDto {

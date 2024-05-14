@@ -12,6 +12,7 @@ import {
 import { User } from '../../config/database/models/user.model';
 import { SleepEntryRepository } from '../../config/database/repositories/sleepEntry.repository';
 import { SleepEntry } from '../../config/database/models/sleepEntry.model';
+import { MoreThan, LessThan, Between } from 'typeorm';
 
 @Injectable()
 export class SleepScheduleService {
@@ -99,7 +100,6 @@ export class SleepScheduleService {
       }
     }
 
-
     // Check if both sleepTime and wakeUpTime are being updated
     if (updateSleepEntryDto.sleepTime && updateSleepEntryDto.wakeUpTime) {
       if (sleepTime >= wakeUpTime) {
@@ -151,5 +151,33 @@ export class SleepScheduleService {
 
   async findAllUserSleepEntries(user: User): Promise<SleepEntry[]> {
     return this.sleepEntryRepository.find({ where: { user: { id: user.id } } });
+  }
+
+  async getAverageSleepDurationForThisWeek(
+    user: User,
+  ): Promise<{ averageSleepDuration: number }> {
+    // Calculate the start and end dates of the current week
+    const now = new Date();
+    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+    const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+
+    // Fetch all sleep entries for the user that fall within the current week
+    const sleepEntries = await this.sleepEntryRepository.find({
+      where: {
+        user: { id: user.id },
+        date: Between(startOfWeek, endOfWeek),
+      },
+    });
+
+    // Calculate the total sleep duration for the entries in the current week
+    let totalSleepDuration = 0;
+    for (const entry of sleepEntries) {
+      totalSleepDuration += entry.totalSleepDuration;
+    }
+
+    // Calculate the average sleep duration
+    const averageSleepDuration = totalSleepDuration / sleepEntries.length;
+
+    return { averageSleepDuration };
   }
 }

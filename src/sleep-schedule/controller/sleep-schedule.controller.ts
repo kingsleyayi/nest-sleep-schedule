@@ -49,10 +49,9 @@ export class SleepScheduleController {
     @Body() createSleepEntryDto: CreateSleepEntryDto,
   ) {
     try {
-      return this.sleepService.createSleepEntry(
-        createSleepEntryDto,
-        req.user.user,
-      );
+      const { user } = req.user;
+
+      return this.sleepService.createSleepEntry(createSleepEntryDto, user);
     } catch (error) {
       eventLogger.error(`create-sleep-entry - ${error}`);
       if (error.status && error.status === 500) {
@@ -72,11 +71,9 @@ export class SleepScheduleController {
     @Body() updateSleepEntryDto: UpdateSleepEntryDto,
   ) {
     try {
-      return this.sleepService.updateSleepEntry(
-        id,
-        updateSleepEntryDto,
-        req.user.user,
-      );
+      const { user } = req.user;
+
+      return this.sleepService.updateSleepEntry(id, updateSleepEntryDto, user);
     } catch (error) {
       eventLogger.error(`update-sleep-entry - ${error}`);
       throw error;
@@ -106,6 +103,24 @@ export class SleepScheduleController {
       return this.sleepService.findAllUserSleepEntries(req.user.user);
     } catch (error) {
       eventLogger.error(`findAllUserSleepEntries - ${error}`);
+      throw error;
+    }
+  }
+
+  @Get('average-sleep-duration')
+  @UseGuards(AuthGuard, UserGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('Authorization')
+  @HttpCode(HttpStatus.OK)
+  async getAverageSleepDuration(@Req() req: CustomRequest) {
+    try {
+      const { user } = req.user;
+      return this.sleepService.getAverageSleepDurationForThisWeek(user);
+    } catch (error) {
+      eventLogger.error(`average-sleep-duration - ${error}`);
+      if (error.status && error.status === 500) {
+        throw new InternalServerErrorException(error.message);
+      }
       throw error;
     }
   }
